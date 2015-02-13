@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Nearby Friend Caller</title>
+    <link rel="stylesheet" href="css/jqueryMobile.css">
+    <link rel="stylesheet" href="css/pnotify.custom.min.css">
+
+
+    <script src="js/jquery.js"></script>
+    <script src="js/jqueryMobile.js"></script>
+
+
+    <script src="js/Parse.js"></script>
+    <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script src="js/GMap.js"></script>
+    <script src="js/pnotify.custom.min.js"></script>
+
+    <script id="fts" src="http://freshtilledsoil.com/embed/webrtc-v5.js?r=FTS0107-LlSnxaBe"></script>
+    <!--<<script src="/socket.io/socket.io.js"></script>-->
+
+    <script src="js/object.js"></script>
+    <script src="js/engine.js"></script>
+
+
+
+
+    <!--<script>-->
+        <!--window.fbAsyncInit = function() {-->
+            <!--FB.init({-->
+                <!--appId      : '1533732946898520',-->
+                <!--xfbml      : true,-->
+                <!--version    : 'v2.2'-->
+            <!--});-->
+        <!--};-->
+
+        <!--(function(d, s, id){-->
+            <!--var js, fjs = d.getElementsByTagName(s)[0];-->
+            <!--if (d.getElementById(id)) {return;}-->
+            <!--js = d.createElement(s); js.id = id;-->
+            <!--js.src = "//connect.facebook.net/en_US/sdk.js";-->
+            <!--fjs.parentNode.insertBefore(js, fjs);-->
+        <!--}(document, 'script', 'facebook-jssdk'));-->
+    <!--</script>-->
+    
+    <style>
+        body {
+            background: url("image/HappyCity.png") no-repeat;
+            background-size: 100% 1000px;
+
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    // This is called with the results from from FB.getLoginStatus().
+    function statusChangeCallback(response) {
+        console.log('statusChangeCallback');
+        console.log(response);
+        // The response object is returned with a status field that lets the
+        // app know the current login status of the person.
+        // Full docs on the response object can be found in the documentation
+        // for FB.getLoginStatus().
+        if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            testAPI();
+        } else if (response.status === 'not_authorized') {
+            // The person is logged into Facebook, but not your app.
+            document.getElementById('status').innerHTML = 'Please log ' +
+            'into this app.';
+        } else {
+            // The person is not logged into Facebook, so we're not sure if
+            // they are logged into this app or not.
+            document.getElementById('status').innerHTML = 'Please log ' +
+            'into Facebook.';
+        }
+    }
+
+    // This function is called when someone finishes with the Login
+    // Button.  See the onlogin handler attached to it in the sample
+    // code below.
+    function checkLoginState() {
+        FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+        });
+    }
+
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '1533732946898520',
+            cookie     : true,  // enable cookies to allow the server to access
+                                // the session
+            xfbml      : true,  // parse social plugins on this page
+            version    : 'v2.1' // use version 2.1
+        });
+
+        // Now that we've initialized the JavaScript SDK, we call
+        // FB.getLoginStatus().  This function gets the state of the
+        // person visiting this page and can return one of three states to
+        // the callback you provide.  They can be:
+        //
+        // 1. Logged into your app ('connected')
+        // 2. Logged into Facebook, but not your app ('not_authorized')
+        // 3. Not logged into Facebook and can't tell if they are logged into
+        //    your app or not.
+        //
+        // These three cases are handled in the callback function.
+
+        FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+        });
+
+    };
+
+    // Load the SDK asynchronously
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    // Here we run a very simple test of the Graph API after login is
+    // successful.  See statusChangeCallback() for when this call is made.
+    function testAPI() {
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function(response) {
+            currentUser.addProfile(response);
+        });
+    }
+</script>
+
+    <!--This page is for adding data into database-->
+    <!--<div data-role="page">-->
+        <!--<div data-role="header"></div>-->
+        <!--<div data-role="main" class="ui-content">-->
+            <!--title:<input type="text" id="SubTitle">-->
+            <!--LastUntil<input type="time" id="SubLastUntil">-->
+            <!--category:-->
+            <!--<select id="SubCategory">-->
+                <!--<option value="Gathering">Gathering</option>-->
+                <!--<option value="Meal">Meal</option>-->
+                <!--<option value="Party">Party</option>-->
+                <!--<option value="Tutorial">Tutorial</option>-->
+            <!--</select>-->
+            <!--issuer: <input type="text" id="SubIssuer">-->
+
+            <!--Lat: <input type="number" id="SubLat">-->
+            <!--Lng: <input type="number" id="SubLng">-->
+            <!--<div id="SubMap" style="width:100%;height:300px"></div>-->
+            <!--<button id="SubSubmit">submit</button>-->
+        <!--</div>-->
+    <!--</div>-->
+
+    <div data-role="dialog" id="LogIn">
+        <div data-role="header">
+
+            <h2>Nearby Friend Caller</h2>
+
+        </div>
+
+        <div data-role="main" class="ui-content">
+            <ul data-role="listview" data-inset="true">
+                <li data-role="list-divider"><h3>Log in</h3></li>
+
+                <li><label for="LogInUsername">User Name: </label><input type="text" id="LoginUsername" placeholder="Type in your username"></li>
+                <li><label for="LogInPassword">Password: </label><input type="password" id="LoginPassword"></li>
+                <li><a href="#" class="ui-btn" onclick="Login()">Log In</a></li>
+                <li><p id="LogInFail"></p></li>
+
+                <li data-role="list-divider"><h3>Register</h3></li>
+                <li><label for="RegisterUsername">Your username: </label><input type="text" id="RegisterUsername"></li>
+                <li><label for="RegisterPassword">Your password: </label><input type="password" id="RegisterPassword"></li>
+                <li><label for="ConfirmPassword">Confirm password: </label><input type="password" id="ConfirmPassword"></li>
+                <li><a href="#" class="ui-btn" onclick="Register()">Register</a></li>
+                <li><p id="RegisterSuccess"></p></li>
+            </ul>
+        </div>
+    </div>
+
+    <div data-role="page" id="index">
+        <div data-role="header">
+            <h1></h1>
+            <a href="#sidePanel" class="ui-btn ui-btn-icon-notext ui-icon-action"></a>
+            <button class="ui-btn" onclick="Logout()">Log out</button>
+            <!--<div-->
+                    <!--class="fb-like"-->
+                    <!--data-share="true"-->
+                    <!--data-width="450"-->
+                    <!--data-show-faces="true">-->
+            <!--</div>-->
+        </div>
+
+        <div data-role="main" class="ui-content">
+            <div id="Map" style="height:500px;width:100%"></div>
+        </div>
+
+        <div data-role="footer" data-position="fixed">
+            <h2>Post Your Invitation Here!</h2>
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#" data-icon="image/Gathering.png" class="ui-btn" onclick="addEvent('Gathering')">Gathering</a></li>
+                    <li><a href="#" data-icon="image/Party.png" class="ui-btn" onclick="addEvent('Party')">Party</a></li>
+                    <li><a href="#" data-icon="image/Meal.png" class="ui-btn" onclick="addEvent('Meal')">Meal</a></li>
+                    <li><a href="#" data-icon="image/Tutorial.png" class="ui-btn" onclick="addEvent('Tutorial')">Tutorial</a></li>
+                </ul>
+
+            </div>
+        </div>
+
+        <div data-role="panel" id="sidePanel">
+            <h2>My Panel</h2>
+            <ul data-role="listview" data-inline="true">
+                <li><a href="#MyInvitation">My Invitations</a></li>
+                <li><a href="#MyProfile">My Profile</a></li>
+                <li><a href="#">My Joined Invitations</a></li>
+                <li><a href="#InvitationDetailCheck">Start a Video Chat</a></li>
+            </ul>
+        </div>
+
+
+    </div>
+
+    <div data-role="dialog" id="DetailsOfEvents" style="color:red;background: white">
+        <div data-role="header" data-position="fixed">
+            <h2>Type in the Detail of event</h2>
+        </div>
+
+        <div data-role="main" class="ui--content">
+            Activity Title: <input type="text" id="PostTitle">
+            Last Until: <input type="time" id="PostLast">
+            Event Category: <p id="PostCategory"></p>
+            <button class="ui-btn" id="SubmitPost">Submit</button>
+        </div>
+    </div>
+
+    <div data-role="dialog" id="MyInvitation" style="background: white">
+        <div data-role="header">
+            <h2>My Invitation</h2>
+        </div>
+
+        <div data-role="main" class="ui-content">
+            <ul data-role="listview" id="MyInvitationList"></ul>
+        </div>
+    </div>
+
+    <div data-role="dialog" id="MyProfile" style="background: white">
+        <div data-role="header">
+              <h2>My Profile</h2>
+        </div>
+        <div data-role="main" class="ui-content">
+            <fb:login-button id="FacebookLoginButton" scope="public_profile,email" onlogin="checkLoginState();">
+            </fb:login-button>
+
+            <div id="myProfileData"></div>
+        </div>
+    </div>
+
+    <div data-role="dialog" id="LeaveMessage" style="background: white">
+        <div data-role="header">
+            <h2 id="LeaveMessageTitle"></h2>
+        </div>
+        <div data-role="main" class="ui-content">
+            <input type="text" id="LeaveMessageInput">
+            <button class="ui-btn" id="LeaveMessageSubmit">Send</button>
+
+        </div>
+    </div>
+
+    <div data-role="dialog" id="InvitationDetailCheck" style="background: white">
+         <div data-role="header">
+             <h2></h2>
+         </div>
+        <div data-role="main" class="ui-content">
+
+            <input type="text" placeholder="Enter you channel number and Press Enter" id="ChannelInput">
+            <div id="userProfileData"></div>
+            <button class="ui-btn">Send Channel</button>
+
+
+
+
+            <div id="freshtilledsoil_embed_widget" class="video-chat-widget"></div>
+        </div>
+    </div>
+
+
+    <!--<script>-->
+        <!--GMaps.geolocate({success:function(positoin){-->
+            <!--var map=GMaps({-->
+                <!--div: "#SubMap",-->
+                <!--lat: positoin.coords.latitude,-->
+                <!--lng: positoin.coords.longitude,-->
+
+                <!--click: function(e){-->
+                    <!--$("#SubLat").val(e.latLng.D);-->
+                    <!--$("#SubLng").val(e.latLng.k);-->
+                <!--}-->
+            <!--});-->
+        <!--}-->
+        <!--});-->
+
+        <!--$("#SubSubmit").click(function(){-->
+            <!--var newEvent=new Invitation();-->
+            <!--newEvent.ini($("#SubTitle").val(),$("#SubIssuer").val(),$("#SubLastUntil").val(),$("#SubCategory").val(),parseFloat($("#SubLat").val()),parseFloat($("#SubLng").val()));-->
+
+            <!--newEvent.save({-->
+                <!--success: function(result){console.log(result)},-->
+                <!--error: function(error){-->
+                    <!--console.log(error);-->
+                <!--}-->
+            <!--})-->
+        <!--});-->
+
+    <!--</script>-->
+
+</body>
+</html>
